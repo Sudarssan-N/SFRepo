@@ -1,0 +1,47 @@
+<template>
+    <lightning-card title="Customer Authentication" icon-name="standard:account">
+        <div class="slds-p-horizontal_small">
+            <!-- Display Authenticate button if not authenticated -->
+            <template if:false={isAuthenticated}>
+                <lightning-button
+                    label="Authenticate"
+                    variant="brand"
+                    onclick={handleAuthenticate}
+                    class="authenticate-button"
+                ></lightning-button>
+            </template>
+
+            <!-- Display Authenticated button if authenticated -->
+            <template if:true={isAuthenticated}>
+                <lightning-button
+                    label="Authenticated"
+                    variant="success"
+                    disabled
+                    class="authenticate-button"
+                ></lightning-button>
+            </template>
+
+            <!-- Display security questions when showQuestions is true -->
+            <template if:true={showQuestions}>
+                <div class="slds-m-top_medium">
+                    <template for:each={securityQuestions} for:item="question">
+                        <div key={question.Id} class="slds-box slds-m-bottom_small">
+                            <p><strong>Question {question.number}:</strong> {question.question}</p>
+                            <lightning-input
+                                type="text"
+                                data-id={question.Id}
+                                label="Answer"
+                                onchange={handleAnswerChange}
+                            ></lightning-input>
+                        </div>
+                    </template>
+                    <lightning-button
+                        label="Submit Answers"
+                        variant="brand"
+                        onclick={handleSubmitAnswers}
+                    ></lightning-button>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>
