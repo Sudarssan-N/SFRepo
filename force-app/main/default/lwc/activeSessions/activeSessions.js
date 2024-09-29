@@ -2,8 +2,9 @@ import { LightningElement, track, wire } from 'lwc';
 import getActiveSessions from '@salesforce/apex/ActiveSessionsController.getActiveSessions';
 import deleteSession from '@salesforce/apex/ActiveSessionsController.deleteSession';
 import { refreshApex } from '@salesforce/apex';
-
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+
 
 const actions = [
     { label: 'Delete Session', name: 'delete_session' }
@@ -29,6 +30,7 @@ const columns = [
 export default class ActiveSessions extends LightningElement {
     @track sessions = [];
     columns = columns;
+    wiredSessionsResult;
 
     @wire(getActiveSessions)
     wiredSessions(result) {
@@ -38,7 +40,7 @@ export default class ActiveSessions extends LightningElement {
             this.sessions = data.map(session => {
                 return {
                     ...session,
-                    AccountName: session.Account__r.Name,
+                    AccountName: session.Account__r ? session.Account__r.Name : '',
                 };
             });
         } else if (error) {
