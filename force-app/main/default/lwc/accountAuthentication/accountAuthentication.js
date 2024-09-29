@@ -10,23 +10,23 @@ import AUTH_TIMESTAMP_FIELD from '@salesforce/schema/Customer_Session__c.Authent
 import SESSION_ACTIVE_FIELD from '@salesforce/schema/Customer_Session__c.Session_Active__c';
 
 // Import security question and answer fields
-import SECURITY_QUESTION_1 from '@salesforce/schema/Account.Security_Question_1__c';
-import SECURITY_ANSWER_1 from '@salesforce/schema/Account.Security_Answer_1__c';
-import SECURITY_QUESTION_2 from '@salesforce/schema/Account.Security_Question_2__c';
-import SECURITY_ANSWER_2 from '@salesforce/schema/Account.Security_Answer_2__c';
-import SECURITY_QUESTION_3 from '@salesforce/schema/Account.Security_Question_3__c';
-import SECURITY_ANSWER_3 from '@salesforce/schema/Account.Security_Answer_3__c';
-// Continue importing up to 7 questions and answers...
+// import SECURITY_QUESTION_1 from '@salesforce/schema/Account.Security_Question_1__c';
+// import SECURITY_ANSWER_1 from '@salesforce/schema/Account.Security_Answer_1__c';
+// import SECURITY_QUESTION_2 from '@salesforce/schema/Account.Security_Question_2__c';
+// import SECURITY_ANSWER_2 from '@salesforce/schema/Account.Security_Answer_2__c';
+// import SECURITY_QUESTION_3 from '@salesforce/schema/Account.Security_Question_3__c';
+// import SECURITY_ANSWER_3 from '@salesforce/schema/Account.Security_Answer_3__c';
+// // Continue importing up to 7 questions and answers...
 
-const FIELDS = [
-    SECURITY_QUESTION_1,
-    SECURITY_ANSWER_1,
-    SECURITY_QUESTION_2,
-    SECURITY_ANSWER_2,
-    SECURITY_QUESTION_3,
-    SECURITY_ANSWER_3,
-    // Add other fields up to question 7
-];
+// const FIELDS = [
+//     SECURITY_QUESTION_1,
+//     SECURITY_ANSWER_1,
+//     SECURITY_QUESTION_2,
+//     SECURITY_ANSWER_2,
+//     SECURITY_QUESTION_3,
+//     SECURITY_ANSWER_3,
+//     // Add other fields up to question 7
+// ];
 
 
 export default class AuthenticateCustomer extends LightningElement {
@@ -46,6 +46,56 @@ export default class AuthenticateCustomer extends LightningElement {
 
     connectedCallback() {
         this.checkActiveSession();
+    }
+
+    prepareQuestions() {
+        getSecurityQuestionsAndAnswers({ accountId: this.recordId })
+            .then(dataMap => {
+                // Build the securityQuestions array from the dataMap
+                const questions = [];
+                for (let i = 1; i <= 7; i++) {
+                    const question = dataMap[`Security_Question_${i}__c`];
+                    const answer = dataMap[`Security_Answer_${i}__c`];
+                    if (question && answer) {
+                        questions.push({
+                            Id: `${i}`,
+                            number: i,
+                            question: question,
+                            answer: answer,
+                        });
+                    }
+                }
+
+                // Select 3 random questions
+                this.securityQuestions = this.getRandomQuestions(questions, 3);
+
+                // Initialize enteredAnswers
+                this.enteredAnswers = {};
+                this.securityQuestions.forEach(question => {
+                    this.enteredAnswers[question.Id] = '';
+                });
+            })
+            .catch(error => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'Unable to retrieve security questions.',
+                        variant: 'error',
+                    })
+                );
+                console.error('Error retrieving security questions:', error);
+            });
+    }
+
+    getRandomQuestions(questions, count) {
+        const shuffled = [...questions].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+    }
+
+    // Handle change in answer input fields
+    handleAnswerChange(event) {
+        const questionId = event.target.dataset.id;
+        this.enteredAnswers[questionId] = event.target.value;
     }
 
     checkActiveSession() {
