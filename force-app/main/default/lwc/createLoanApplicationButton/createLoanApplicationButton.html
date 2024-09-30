@@ -1,0 +1,21 @@
+<template>
+    <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading"></lightning-spinner>
+    </template>
+    <template if:false={isLoading}>
+        <template if:true={isButtonVisible}>
+            <template if:false={flowInitialized}>
+                <lightning-button
+                    label="Create Loan Application"
+                    variant="brand"
+                    onclick={handleCreateLoanApplication}
+                ></lightning-button>
+            </template>
+            <template if:true={flowInitialized}>
+                <lightning-flow
+                    onstatuschange={handleStatusChange}
+                ></lightning-flow>
+            </template>
+        </template>
+    </template>
+</template>
