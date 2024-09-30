@@ -1,25 +1,49 @@
-import { LightningElement, api, track } from 'lwc';
+import { LightningElement, api, track, wire } from 'lwc';
 import hasPermission from '@salesforce/customPermission/Banker_Special_Access';
 import getActiveSession from '@salesforce/apex/CustomerSessionController.getActiveSession';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { subscribe, MessageContext } from 'lightning/messageService';
+import SESSION_MESSAGE from '@salesforce/messageChannel/SessionMessageChannel__c';
 
 export default class CreateLoanApplicationButton extends LightningElement {
     @api recordId;
     @track isButtonVisible = false;
     @track isLoading = true;
     @track flowInitialized = false;
+    @track flowInputVariables = [];
+
+    @wire(MessageContext)
+    messageContext;
 
     connectedCallback() {
         this.checkAccessAndSession();
+        this.subscribeToMessageChannel();
+    }
+
+    subscribeToMessageChannel() {
+        if (!this.subscription) {
+            this.subscription = subscribe(
+                this.messageContext,
+                SESSION_MESSAGE,
+                (message) => this.handleSessionMessage(message)
+            );
+        }
+    }
+
+    handleSessionMessage(message) {
+        if (message.sessionCreated) {
+            this.checkAccessAndSession();
+        }
     }
 
     async checkAccessAndSession() {
         try {
+            this.isLoading = true;
             if (hasPermission) {
                 const sessionActive = await getActiveSession({ accountId: this.recordId });
-                if (sessionActive) {
-                    this.isButtonVisible = true;
-                }
+                this.isButtonVisible = sessionActive;
+            } else {
+                this.isButtonVisible = false;
             }
         } catch (error) {
             console.error('Error checking access and session:', error);
@@ -29,21 +53,14 @@ export default class CreateLoanApplicationButton extends LightningElement {
     }
 
     handleCreateLoanApplication() {
-        // Start the Flow
-        const flow = this.template.querySelector('lightning-flow');
-        if (flow) {
-            const inputVariables = [
-                {
-                    name: 'AccountId',
-                    type: 'String',
-                    value: this.recordId,
-                },
-            ];
-            flow.startFlow('Loan_Application_Wizard', inputVariables);
-            this.flowInitialized = true;
-        } else {
-            console.error('Flow component not found');
-        }
+        this.flowInputVariables = [
+            {
+                name: 'AccountId',
+                type: 'String',
+                value: this.recordId,
+            },
+        ];
+        this.flowInitialized = true;
     }
 
     handleStatusChange(event) {

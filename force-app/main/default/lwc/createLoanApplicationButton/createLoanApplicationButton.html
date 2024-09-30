@@ -13,6 +13,8 @@
             </template>
             <template if:true={flowInitialized}>
                 <lightning-flow
+                    flow-api-name="Application_for_Loan"
+                    flow-input-variables={flowInputVariables}
                     onstatuschange={handleStatusChange}
                 ></lightning-flow>
             </template>
