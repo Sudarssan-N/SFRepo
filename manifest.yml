@@ -1,0 +1,5 @@
+applications:
+- name: my-sse-server
+  memory: 512M
+  path: target/my-sse-server.jar
+ 
