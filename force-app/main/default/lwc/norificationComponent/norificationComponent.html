@@ -1,3 +1,11 @@
 <template>
-    
+    <lightning-card title="Notifications">
+        <div>
+            <ul>
+                <template for:each={notifications} for:item="notif">
+                    <li key={notif}>{notif}</li>
+                </template>
+            </ul>
+        </div>
+    </lightning-card>
 </template>
