@@ -1,0 +1,13 @@
+ul {
+    max-height: 300px;
+    overflow-y: auto;
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background: #f4f6f9;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
