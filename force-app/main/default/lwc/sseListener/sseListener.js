@@ -16,7 +16,7 @@ export default class SseListener extends LightningElement {
             return;
         }
 
-        const sseUrl = 'http:localhost:8080/sse/random-events';
+        const sseUrl = 'https://mysterious-scrubland-09012-cfb4e2d08a77.herokuapp.com/sse/random-events';
         this.eventSource = new EventSource(sseUrl);
 
         this.eventSource.onopen = () => {

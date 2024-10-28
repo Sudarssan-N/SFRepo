@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSE Test</title>
+</head>
+<body>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+    
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const statusDiv = document.getElementById('status');
+        
+        function connect() {
+            const evtSource = new EventSource('http://localhost:3000/events');
+            
+            evtSource.onopen = () => {
+                statusDiv.textContent = 'Connected';
+            };
+            
+            evtSource.onerror = (error) => {
+                statusDiv.textContent = 'Error - Reconnecting...';
+                console.error('EventSource error:', error);
+            };
+            
+            evtSource.addEventListener('connected', (event) => {
+                const data = JSON.parse(event.data);
+                addMessage('Connected: ' + data.message);
+            });
+            
+            evtSource.addEventListener('update', (event) => {
+                const data = JSON.parse(event.data);
+                addMessage(`Update: ${data.message} (Clients: ${data.activeClients})`);
+            });
+            
+            evtSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                addMessage('Message: ' + JSON.stringify(data));
+            };
+        }
+        
+        function addMessage(message) {
+            const div = document.createElement('div');
+            div.textContent = message;
+            messagesDiv.insertBefore(div, messagesDiv.firstChild);
+        }
+        
+        connect();
+    </script>
+</body>
+</html>
