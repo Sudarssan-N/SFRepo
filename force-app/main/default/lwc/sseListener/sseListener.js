@@ -16,7 +16,7 @@ export default class SseListener extends LightningElement {
             return;
         }
 
-        const sseUrl = 'https://llama-upright-possibly.ngrok-free.app/sse/random-events';
+        const sseUrl = 'http:localhost:8080/sse/random-events';
         this.eventSource = new EventSource(sseUrl);
 
         this.eventSource.onopen = () => {

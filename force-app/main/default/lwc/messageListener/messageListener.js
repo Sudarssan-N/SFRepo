@@ -1,111 +1,126 @@
-import { LightningElement, api, track } from 'lwc';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import userId from '@salesforce/user/Id';
+import { LightningElement, track } from 'lwc';
 
 export default class MessageListener extends LightningElement {
     @track messages = [];
-    @track isConnected = false;
+    @track connectionStatus = 'Disconnected';
+    @track activeClients = 0;
     eventSource;
-    brokerUrl = 'https://sse-pub-sub-8edc987ae02d.herokuapp.com/api'; // Update with your deployed Spring Boot URL
-
-    // Configuration
-    @api 
-    maxMessages = 50; // Maximum number of messages to show
+    maxRetries = 3;
+    retryCount = 0;
+    retryDelay = 5000;
+    
+    get serverUrl() {
+        // Update this with your server URL
+        return 'https://llama-upright-possibly.ngrok-free.app/events';
+    }
 
     connectedCallback() {
-        this.initializeConnection();
+        this.connectToEventSource();
     }
 
     disconnectedCallback() {
-        this.closeConnection();
+        this.cleanupConnection();
     }
 
-    initializeConnection() {
-        // First register the client
-        fetch(`${this.brokerUrl}/register?userId=${userId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Registration failed');
-            }
-            return response.text();
-        })
-        .then(() => {
-            // After successful registration, establish SSE connection
-            this.connectSSE();
-        })
-        .catch(error => {
-            console.error('Registration error:', error);
-            this.showToast('Error', 'Failed to register for messages', 'error');
-            // Retry after 5 seconds
-            setTimeout(() => this.initializeConnection(), 5000);
-        });
-    }
-
-    connectSSE() {
-        this.closeConnection(); // Close any existing connection
-        
-        this.eventSource = new EventSource(`${this.brokerUrl}/stream?userId=${userId}`);
-        
-        this.eventSource.onopen = () => {
-            this.isConnected = true;
-            this.showToast('Success', 'Connected to message service', 'success');
-        };
-
-        this.eventSource.onmessage = (event) => {
-            try {
-                const message = JSON.parse(event.data);
-                this.handleNewMessage(message);
-            } catch (error) {
-                console.error('Message parsing error:', error);
-            }
-        };
-
-        this.eventSource.onerror = (error) => {
-            console.error('SSE Error:', error);
-            this.isConnected = false;
-            this.closeConnection();
-            // Retry connection after 5 seconds
-            setTimeout(() => this.connectSSE(), 5000);
-        };
-    }
-
-    handleNewMessage(message) {
-        // Add new message to the start of the array
-        this.messages = [message, ...this.messages.slice(0, this.maxMessages - 1)];
-        
-        // Show notification for new message
-        this.showToast('New Message', message.content, 'info');
-    }
-
-    closeConnection() {
+    cleanupConnection() {
         if (this.eventSource) {
             this.eventSource.close();
             this.eventSource = null;
-            this.isConnected = false;
         }
     }
 
-    showToast(title, message, variant) {
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: title,
-                message: message,
-                variant: variant
-            })
-        );
+    async validateServerConnection() {
+        try {
+            // First check if server is available
+            const response = await fetch(this.serverUrl.replace('/events', '/'));
+            if (!response.ok) throw new Error('Server not available');
+            return true;
+        } catch (error) {
+            console.error('Server validation failed:', error);
+            return false;
+        }
     }
 
-    // Getters for template
-    get connectionStatus() {
-        return this.isConnected ? 'Connected' : 'Disconnecting...';
+    async connectToEventSource() {
+        try {
+            this.connectionStatus = 'Validating connection...';
+            
+            // Validate server first
+            const isServerAvailable = await this.validateServerConnection();
+            if (!isServerAvailable) {
+                throw new Error('Server not available');
+            }
+
+            this.connectionStatus = 'Connecting...';
+            console.log('Initializing SSE connection...');
+
+            // Create EventSource with proper headers
+            this.eventSource = new EventSource(this.serverUrl, {
+                withCredentials: false
+            });
+
+            // Connection opened
+            this.eventSource.onopen = () => {
+                console.log('SSE connection opened');
+                this.connectionStatus = 'Connected';
+                this.retryCount = 0;
+            };
+
+            // Connected event
+            this.eventSource.addEventListener('connected', (event) => {
+                console.log('Connected event received');
+                const data = JSON.parse(event.data);
+                this.addMessage({
+                    type: 'status',
+                    message: data.message,
+                    timestamp: new Date().toISOString()
+                });
+            });
+
+            // Update event
+            this.eventSource.addEventListener('update', (event) => {
+                const data = JSON.parse(event.data);
+                this.activeClients = data.activeClients;
+                this.addMessage({
+                    type: 'update',
+                    message: data.message,
+                    timestamp: data.timestamp,
+                    activeClients: data.activeClients
+                });
+            });
+
+            // Error handling
+            this.eventSource.onerror = (error) => {
+                console.error('SSE connection error:', error);
+                this.handleError(error);
+            };
+
+        } catch (error) {
+            console.error('Error in connectToEventSource:', error);
+            this.handleError(error);
+        }
     }
 
-    get connectionStatusClass() {
-        return this.isConnected ? 'slds-text-color_success' : 'slds-text-color_error';
+    handleError(error) {
+        this.cleanupConnection();
+        
+        if (this.retryCount < this.maxRetries) {
+            this.retryCount++;
+            this.connectionStatus = `Connection error - Retry ${this.retryCount}/${this.maxRetries}`;
+            
+            setTimeout(() => {
+                console.log(`Retrying connection (${this.retryCount}/${this.maxRetries})...`);
+                this.connectToEventSource();
+            }, this.retryDelay);
+        } else {
+            this.connectionStatus = 'Connection failed - Please refresh the page';
+        }
+    }
+
+    addMessage(message) {
+        this.messages = [...this.messages, message];
+        if (this.messages.length > 10) {
+            this.messages = this.messages.slice(-10);
+        }
     }
 }
