@@ -12,7 +12,7 @@
         const statusDiv = document.getElementById('status');
         
         function connect() {
-            const evtSource = new EventSource('http://localhost:3000/events');
+            const evtSource = new EventSource('https://mysterious-scrubland-09012-cfb4e2d08a77.herokuapp.com/sse/random-events');
             
             evtSource.onopen = () => {
                 statusDiv.textContent = 'Connected';
@@ -49,3 +49,11 @@
     </script>
 </body>
 </html>
+
+
+
+
+curl -X GET "https://mysterious-scrubland-09012-cfb4e2d08a77.herokuapp.com/sse/random-events"\
+     -H "Access-Control-Request-Method: POST" \
+     -H "Origin: https://whlsecentralsup--temp2.sandbox.lightning.force.com" \
+     -H "Access-Control-Request-Headers: Content-Type"
