@@ -1,62 +1,52 @@
-Step-by-Step Updated Calculations:
+    Updated Time Saved per Search:
+        Developers: 30 seconds to 1 minute.
+        Bankers: 30 seconds to 1 minute.
 
-    Number of Call-Outs Per Year:
-        Developers: 169,000,000 call-outs/year.
-        Employees: 1,159,600,000 call-outs/year.
-        Total Annual Call-Outs: 1,328,600,000 call-outs/year.
+    Annual Infrastructure Cost with Customer Interactions:
+        Base On-Prem Infrastructure Cost: $6,920,000/year.
+        Additional Cost for Customer Interaction: $2,000,000/year.
+        Total Infrastructure Cost: $6,920,000 + $2,000,000 = $8,920,000/year.
 
-    Annual Infrastructure Cost:
-        On-Premise Models: Assumed to have negligible additional API cost. The focus is on operational costs, which are not detailed here.
-        Annual API Infrastructure Cost: $0 (as on-prem models are used).
+    Time Saved per Year:
+        Developers:
+            Minimum: (50 call-outs × 0.5 minutes) × 260 days / 60 = 108.33 hours/year per developer.
+            Maximum: (50 call-outs × 1 minute) × 260 days / 60 = 216.67 hours/year per developer.
+        Bankers:
+            Minimum: (20 call-outs × 0.5 minutes) × 260 days / 60 = 43.33 hours/year per banker.
+            Maximum: (20 call-outs × 1 minute) × 260 days / 60 = 86.67 hours/year per banker.
 
-    Daily Salary:
-        Developers and Employees: $230.77/day (as before).
-
-    Updated Time Saved and Cost Savings:
-
-        Time Saved per Search: 2 to 3 minutes.
-
-        Time Saved per Day (in hours):
-            Developers: 50 searches × (2 to 3 minutes) = 100 to 150 minutes = 1.67 to 2.5 hours/day.
-            Other Employees: 20 searches × (2 to 3 minutes) = 40 to 60 minutes = 0.67 to 1 hour/day.
-
-        Annual Time Saved (in hours):
-            Developers: 1.67 to 2.5 hours/day × 260 days = 433.42 to 650 hours/year per developer.
-            Employees: 0.67 to 1 hour/day × 260 days = 173.42 to 260 hours/year per employee.
-
-        Annual Cost Savings:
-            Developers:
-                Minimum Savings: $230.77 × 433.42 × 13,000 = $1,303,267,454/year.
-                Maximum Savings: $230.77 × 650 × 13,000 = $1,954,616,500/year.
-            Employees:
-                Minimum Savings: $230.77 × 173.42 × 223,000 = $8,933,105,342/year.
-                Maximum Savings: $230.77 × 260 × 223,000 = $13,408,646,200/year.
+    Annual Cost Savings:
+        Developers:
+            Minimum Savings: $115.38 × 108.33 × 13,000 = $162,531,692/year.
+            Maximum Savings: $115.38 × 216.67 × 13,000 = $325,063,384/year.
+        Bankers:
+            Minimum Savings: $230.77 × 43.33 × 22,000 = $219,759,708/year.
+            Maximum Savings: $230.77 × 86.67 × 22,000 = $439,519,416/year.
 
     Total Cost Saved Annually:
-        Minimum Savings: $1,303,267,454 (developers) + $8,933,105,342 (employees) = $10,236,372,796/year.
-        Maximum Savings: $1,954,616,500 (developers) + $13,408,646,200 (employees) = $15,363,262,700/year.
+        Minimum Savings: $162,531,692 (developers) + $219,759,708 (bankers) = $382,291,400/year.
+        Maximum Savings: $325,063,384 (developers) + $439,519,416 (bankers) = $764,582,800/year.
 
     Net Savings:
-        Net Savings (Min Estimate): $10,236,372,796/year.
-        Net Savings (Max Estimate): $15,363,262,700/year.
+        Net Savings (Min Estimate): $382,291,400 - $8,920,000 = $373,371,400/year.
+        Net Savings (Max Estimate): $764,582,800 - $8,920,000 = $755,662,800/year.
 
 Final Analysis in Table Form:
 
-Table 1: Cost Analysis
+Table 1: Cost Analysis with Updated Time Savings and Customer Interaction Costs
 Metric	Amount (USD)
-Annual Infrastructure Cost	$0 (On-prem models)
-Minimum Cost Saved Annually	$10,236,372,796
-Maximum Cost Saved Annually	$15,363,262,700
+Annual On-Prem Infrastructure Cost	$8,920,000
+Minimum Cost Saved Annually	$382,291,400
+Maximum Cost Saved Annually	$764,582,800
 
-Table 2: Net Savings Analysis
+Table 2: Net Savings Analysis with Updated Time Savings and Customer Interaction Costs
 Metric	Amount (USD)
-Net Savings (Min Estimate)	$10,236,372,796
-Net Savings (Max Estimate)	$15,363,262,700
+Net Savings (Min Estimate)	$373,371,400
+Net Savings (Max Estimate)	$755,662,800
 Summary:
 
-    Infrastructure Cost: Assumed to be negligible due to the use of on-premise models.
-    Cost Savings: The savings due to time efficiency range between $10.2 billion to $15.4 billion annually.
-    Net Savings: The net benefit reflects substantial financial gains from using the system for improved productivity. ​
+    Infrastructure Cost: With customer interaction included, the total on-prem infrastructure cost is estimated at $8.92 million/year.
+    Cost Savings: The potential cost savings from time saved range between $382.3 million to $764.6 million annually.
+    Net Savings: The net financial benefit, after considering infrastructure costs, ranges between $373.4 million and $755.7 million annually. ​
 
-    ​
-
+​
