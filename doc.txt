@@ -1,0 +1,62 @@
+Step-by-Step Updated Calculations:
+
+    Number of Call-Outs Per Year:
+        Developers: 169,000,000 call-outs/year.
+        Employees: 1,159,600,000 call-outs/year.
+        Total Annual Call-Outs: 1,328,600,000 call-outs/year.
+
+    Annual Infrastructure Cost:
+        On-Premise Models: Assumed to have negligible additional API cost. The focus is on operational costs, which are not detailed here.
+        Annual API Infrastructure Cost: $0 (as on-prem models are used).
+
+    Daily Salary:
+        Developers and Employees: $230.77/day (as before).
+
+    Updated Time Saved and Cost Savings:
+
+        Time Saved per Search: 2 to 3 minutes.
+
+        Time Saved per Day (in hours):
+            Developers: 50 searches × (2 to 3 minutes) = 100 to 150 minutes = 1.67 to 2.5 hours/day.
+            Other Employees: 20 searches × (2 to 3 minutes) = 40 to 60 minutes = 0.67 to 1 hour/day.
+
+        Annual Time Saved (in hours):
+            Developers: 1.67 to 2.5 hours/day × 260 days = 433.42 to 650 hours/year per developer.
+            Employees: 0.67 to 1 hour/day × 260 days = 173.42 to 260 hours/year per employee.
+
+        Annual Cost Savings:
+            Developers:
+                Minimum Savings: $230.77 × 433.42 × 13,000 = $1,303,267,454/year.
+                Maximum Savings: $230.77 × 650 × 13,000 = $1,954,616,500/year.
+            Employees:
+                Minimum Savings: $230.77 × 173.42 × 223,000 = $8,933,105,342/year.
+                Maximum Savings: $230.77 × 260 × 223,000 = $13,408,646,200/year.
+
+    Total Cost Saved Annually:
+        Minimum Savings: $1,303,267,454 (developers) + $8,933,105,342 (employees) = $10,236,372,796/year.
+        Maximum Savings: $1,954,616,500 (developers) + $13,408,646,200 (employees) = $15,363,262,700/year.
+
+    Net Savings:
+        Net Savings (Min Estimate): $10,236,372,796/year.
+        Net Savings (Max Estimate): $15,363,262,700/year.
+
+Final Analysis in Table Form:
+
+Table 1: Cost Analysis
+Metric	Amount (USD)
+Annual Infrastructure Cost	$0 (On-prem models)
+Minimum Cost Saved Annually	$10,236,372,796
+Maximum Cost Saved Annually	$15,363,262,700
+
+Table 2: Net Savings Analysis
+Metric	Amount (USD)
+Net Savings (Min Estimate)	$10,236,372,796
+Net Savings (Max Estimate)	$15,363,262,700
+Summary:
+
+    Infrastructure Cost: Assumed to be negligible due to the use of on-premise models.
+    Cost Savings: The savings due to time efficiency range between $10.2 billion to $15.4 billion annually.
+    Net Savings: The net benefit reflects substantial financial gains from using the system for improved productivity. ​
+
+    ​
+
