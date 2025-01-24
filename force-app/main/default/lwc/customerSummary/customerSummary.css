@@ -1,0 +1,43 @@
+/* customerSummary.css */
+.section-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgb(62, 62, 60);
+    margin-bottom: 8px;
+}
+
+.section-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.section-item {
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgb(62, 62, 60);
+    padding: 4px 0 4px 16px;
+    position: relative;
+}
+
+.section-item::before {
+    content: "−";
+    position: absolute;
+    left: 0;
+}
+
+.summary-sections {
+    font-size: 13px;
+}
+
+.email-preview {
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #3e3e3c;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    white-space: pre-wrap;
+}

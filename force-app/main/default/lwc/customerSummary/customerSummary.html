@@ -1,0 +1,168 @@
+<!-- customerSummary.html -->
+<template>
+    <lightning-card title="Customer Interaction Summary" icon-name="standard:customer">
+        <div class="slds-p-around_medium">
+            <!-- Customer Lookup -->
+            <lightning-record-edit-form object-api-name="Customer">
+                <lightning-input-field
+                    field-name="Name"
+                    label="Select Customer"
+                    onchange={handleCustomerSelection}
+                    required
+                    variant="label-stacked">
+                </lightning-input-field>
+            </lightning-record-edit-form>
+
+            <!-- Customer Details (when selected) -->
+            <template if:true={selectedCustomerId}>
+                <div class="slds-box slds-m-top_medium slds-p-around_medium">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                            <p class="slds-text-title">Customer Status</p>
+                            <p class="slds-text-body_regular">{customerStatus}</p>
+                        </div>
+                        <div class="slds-col">
+                            <p class="slds-text-title">Total Life Time Value</p>
+                            <p class="slds-text-body_regular">{totalLifeTimeValue}</p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Generate Summary Button -->
+            <lightning-button 
+                variant="brand" 
+                label="Generate Summary" 
+                title="Generate Summary" 
+                onclick={handleGenerateSummary} 
+                class="slds-m-top_medium"
+                disabled={isButtonDisabled}>
+            </lightning-button>
+
+            <!-- Loading spinner -->
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </template>
+
+            <!-- Error message -->
+            <template if:true={error}>
+                <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <h2>{error}</h2>
+                </div>
+            </template>
+
+<!-- AI Generated Summary -->
+<template if:true={summary}>
+    <div class="slds-box slds-theme_default slds-m-top_medium">
+        <!-- Main Summary -->
+        <div class="slds-m-bottom_medium">
+            <p class="slds-text-body_regular">{formattedSummary.mainSummary}</p>
+        </div>
+
+        <!-- Sections -->
+        <div class="summary-sections">
+            <!-- Urgent Matters -->
+            <div class="slds-m-bottom_medium">
+                <h3 class="section-header">1. Urgent Matters:</h3>
+                <template if:true={formattedSummary.urgentMatters}>
+                    <ul class="section-list">
+                        <template for:each={formattedSummary.urgentMatters} for:item="matter">
+                            <li key={matter} class="section-item">
+                                {matter}
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+            </div>
+
+            <!-- Pending Actions -->
+            <div class="slds-m-bottom_medium">
+                <h3 class="section-header">2. Pending Actions:</h3>
+                <template if:true={formattedSummary.pendingActions}>
+                    <ul class="section-list">
+                        <template for:each={formattedSummary.pendingActions} for:item="action">
+                            <li key={action} class="section-item">
+                                {action}
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+            </div>
+
+            <!-- Significant Changes -->
+            <div class="slds-m-bottom_medium">
+                <h3 class="section-header">3. Significant Changes:</h3>
+                <template if:true={formattedSummary.significantChanges}>
+                    <ul class="section-list">
+                        <template for:each={formattedSummary.significantChanges} for:item="change">
+                            <li key={change} class="section-item">
+                                {change}
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+            </div>
+
+            <!-- Overall Summary -->
+            <div class="slds-m-top_medium">
+                <p class="slds-text-body_regular">{formattedSummary.overallSummary}</p>
+            </div>
+        </div>
+    </div>
+    
+</template>
+<!-- Generate Follow-Up Email Button -->
+<lightning-button 
+    variant="brand" 
+    label="Generate Follow-Up Email" 
+    title="Generate Follow-Up Email" 
+    onclick={generateFollowUpEmail} 
+    class="slds-m-top_medium"
+    disabled={isButtonDisabled}>
+</lightning-button>
+
+<!-- Display Generated Email -->
+<template if:true={generatedEmail}>
+    <div class="slds-box slds-theme_default slds-m-top_medium">
+        <p class="slds-text-body_regular">{generatedEmail}</p>
+    </div>
+</template>
+
+
+
+            <!-- Raw Data Sections -->
+            <template if:true={customerData}>
+                <!-- Cases Section -->
+                <div class="slds-p-top_medium">
+                    <div class="slds-text-heading_small slds-p-bottom_x-small">Recent Ticketed Cases</div>
+                    <template for:each={customerData.tickets} for:item="caseItem">
+                        <div key={caseItem} class="slds-box slds-box_x-small slds-m-bottom_x-small">
+                            {caseItem}
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Emails Section -->
+                <div class="slds-p-top_medium">
+                    <div class="slds-text-heading_small slds-p-bottom_x-small">Email Interactions</div>
+                    <template for:each={customerData.emails} for:item="emailItem">
+                        <div key={emailItem} class="slds-box slds-box_x-small slds-m-bottom_x-small">
+                            {emailItem}
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Branch Visits Section -->
+                <div class="slds-p-top_medium">
+                    <div class="slds-text-heading_small slds-p-bottom_x-small">Branch Visits</div>
+                    <template for:each={customerData.branch_visits} for:item="visitItem">
+                        <div key={visitItem} class="slds-box slds-box_x-small slds-m-bottom_x-small">
+                            {visitItem}
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>
