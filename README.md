@@ -1,3 +1,67 @@
+┌─────────────────────────────────────────┐
+ │         1. Source Control (Git)        │
+ │  - CSV files & manifest in repository  │
+ │  - Scripts for data load               │
+ └─────────────────────────┬──────────────┘
+                           │
+                           │  (2) Trigger: Merge / PR
+                           │      or manual pipeline run
+                           ▼
+ ┌─────────────────────────────────────────┐
+ │         2. Jenkins Pipeline            │
+ │  (Checkout from Git repository)        │
+ └─────────────────────────┬──────────────┘
+                           │
+                           ▼
+ ┌─────────────────────────────────────────┐
+ │  3. Pre-Deployment Checks (Optional)   │
+ │  - Validate CSV format & naming        │
+ │  - Parse manifest file (load order)    │
+ │  - Check data dictionary (schema)      │
+ └─────────────────────────┬──────────────┘
+                           │
+                           ▼
+ ┌─────────────────────────────────────────┐
+ │  4. Data Load Orchestration            │
+ │  (Iterate over manifest or numbered    │
+ │   CSV files in correct load order)     │
+ └─────────────────────────┬──────────────┘
+               ┌──────────┴──────────┐
+               │                     │
+               ▼                     │
+ ┌─────────────────────────────────────────┐
+ │    4a. Load Object CSV via Bulk API    │
+ │  - e.g., `sfdx force:data:bulk:upsert` │
+ │  - Wait/poll for completion            │
+ │  - Capture success & error logs        │
+ └─────────────────────────────────────────┘
+               │                    
+               │  (Upon completion, 
+               │   move to next CSV)  
+               ▼
+ ┌─────────────────────────────────────────┐
+ │    4b. Return Results & Logs           │
+ │  - Store Bulk API success/error logs   │
+ │  - If errors found, handle or abort    │
+ └─────────────────────────────────────────┘
+               │
+               │ (Repeat for next CSV until all complete)
+               ▼
+ ┌─────────────────────────────────────────┐
+ │       5. Post-Deployment Steps         │
+ │  - Summarize load results (counts)     │
+ │  - Publish logs as Jenkins artifacts   │
+ │  - Run Apex tests if desired           │
+ └─────────────────────────┬──────────────┘
+                           │
+                           ▼
+ ┌─────────────────────────────────────────┐
+ │        6. Notification & Review        │
+ │  - Send summary via Slack/Email/etc.   │
+ │  - Team reviews logs & success metrics │
+ └─────────────────────────────────────────┘
+
+
 Below is a more detailed, step-by-step outline of how you might implement a custom data deployment pipeline to replace AutoRabit, along with potential innovations or enhancements you can introduce to streamline and future-proof the solution.
 
 1. Plan and Architecture
