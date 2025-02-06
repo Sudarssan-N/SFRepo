@@ -1,0 +1,54 @@
+<template>
+    <lightning-card title="Banker Assist" icon-name="utility:chat">
+        <div class="chat-container">
+            <template iterator:it={messages}>
+                <div key={it.value.id} 
+                     class={it.value.class}
+                     data-feedback-type={it.value.feedbackType}>
+                    <p>{it.value.text}</p>
+                    <template if:true={it.value.showFeedback}>
+                        <div class="feedback-container">
+                            <button 
+                                class={computedFeedbackClass}
+                                onclick={handleFeedback}
+                                data-messageid={it.value.id}
+                                data-feedback="positive"
+                                disabled={it.value.feedbackGiven}>
+                                <lightning-icon
+                                    icon-name="utility:like"
+                                    size="x-small">
+                                </lightning-icon>
+                            </button>
+                            <button 
+                                class={computedFeedbackClass}
+                                onclick={handleFeedback}
+                                data-messageid={it.value.id}
+                                data-feedback="negative"
+                                disabled={it.value.feedbackGiven}>
+                                <lightning-icon
+                                    icon-name="utility:dislike"
+                                    size="x-small">
+                                </lightning-icon>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+        <div class="input-container">
+            <lightning-input
+                type="text"
+                value={userInput}
+                onchange={handleInputChange}
+                placeholder="Type your question..."
+                class="chat-input">
+            </lightning-input>
+            <lightning-button
+                variant="brand"
+                label="Send"
+                onclick={handleSend}
+                class="send-button">
+            </lightning-button>
+        </div>
+    </lightning-card>
+</template>
