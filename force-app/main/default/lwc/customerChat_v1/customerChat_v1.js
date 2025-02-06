@@ -1,4 +1,3 @@
-// customerChat.js
 import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import generateChatResponse from '@salesforce/apex/CustomerChatController.generateChatResponse';
@@ -12,7 +11,16 @@ export default class CustomerChat extends LightningElement {
     messageCounter = 0;
 
     connectedCallback() {
-        this.addMessage('system', 'Hello! How can I help you today?');
+        // Add initial greeting without feedback options
+        this.messages = [{
+            id: this.messageCounter++,
+            sender: 'system',
+            text: 'Hello! How can I help you today?',
+            class: 'system-message',
+            showFeedback: false, // Set to false for initial greeting
+            feedbackGiven: false,
+            feedbackType: null
+        }];
     }
 
     addMessage(sender, text) {
@@ -23,7 +31,7 @@ export default class CustomerChat extends LightningElement {
                 sender: sender,
                 text: text,
                 class: sender === 'user' ? 'user-message' : 'system-message',
-                showFeedback: sender === 'system',
+                showFeedback: sender === 'system' && text !== 'Hello! How can I help you today?', // Only show feedback for non-greeting system messages
                 feedbackGiven: false,
                 feedbackType: null
             }
@@ -37,6 +45,7 @@ export default class CustomerChat extends LightningElement {
         }, 100);
     }
 
+    // Rest of the component code remains the same
     handleInputChange(event) {
         this.userInput = event.target.value;
     }
@@ -67,7 +76,6 @@ export default class CustomerChat extends LightningElement {
         const message = this.messages.find(msg => msg.id === parseInt(messageId));
         
         if (message && !message.feedbackGiven) {
-            // Update the UI to show feedback was given
             this.messages = this.messages.map(msg => {
                 if (msg.id === parseInt(messageId)) {
                     return {
@@ -79,7 +87,6 @@ export default class CustomerChat extends LightningElement {
                 return msg;
             });
 
-            // Call Apex method to save feedback
             saveFeedback({
                 contactId: this.recordId,
                 messageId: messageId,
@@ -96,7 +103,6 @@ export default class CustomerChat extends LightningElement {
             .catch(error => {
                 console.error('Error saving feedback: ', error);
                 this.showToast('Error', 'Unable to save feedback', 'error');
-                // Revert the UI state on error
                 this.messages = this.messages.map(msg => {
                     if (msg.id === parseInt(messageId)) {
                         return {
