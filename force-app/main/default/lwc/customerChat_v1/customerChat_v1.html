@@ -1,6 +1,7 @@
 <template>
     <lightning-card title="Banker Assist" icon-name="utility:chat">
         <div class="chat-container">
+            <!-- Regular messages -->
             <template iterator:it={messages}>
                 <div key={it.value.id} 
                      class={it.value.class}
@@ -34,15 +35,26 @@
                     </template>
                 </div>
             </template>
+            
+            <!-- Single loading indicator at the end -->
+            <div class="loading-indicator-container" if:true={isLoading}>
+                <div class="loading-bubble">
+                    <div class="typing-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="input-container">
-            <lightning-input
-                type="text"
+            <lightning-textarea
                 value={userInput}
                 onchange={handleInputChange}
                 placeholder="Type your question..."
-                class="chat-input">
-            </lightning-input>
+                class="chat-input"
+                variant="label-hidden">
+            </lightning-textarea>
             <lightning-button
                 variant="brand"
                 label="Send"

@@ -7,6 +7,7 @@ export default class CustomerChat extends LightningElement {
     @api recordId;
     @track messages = [];
     @track userInput = '';
+    @track isLoading = false;
 
     messageCounter = 0;
 
@@ -129,4 +130,29 @@ export default class CustomerChat extends LightningElement {
     get computedFeedbackClass() {
         return 'feedback-button';
     }
+
+
+    handleSend() {
+        const trimmedInput = this.userInput.trim();
+        if (!trimmedInput) {
+            return;
+        }
+
+        this.addMessage('user', trimmedInput);
+        this.userInput = '';
+        this.isLoading = true; // Show loading indicator
+
+        generateChatResponse({ contactId: this.recordId, chatQuestion: trimmedInput })
+            .then(result => {
+                this.isLoading = false; // Hide loading indicator
+                this.addMessage('system', result);
+            })
+            .catch(error => {
+                this.isLoading = false; // Hide loading indicator
+                console.error('Error generating chat response: ', error);
+                this.addMessage('system', 'Error: Unable to retrieve response.');
+                this.showToast('Error', 'Unable to retrieve response', 'error');
+            });
+    }
+
 }

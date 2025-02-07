@@ -83,3 +83,47 @@
 .feedback-button[disabled] {
     cursor: not-allowed;
 }
+
+/* Previous styles remain the same */
+.chat-input lightning-textarea {
+    --sds-c-textarea-sizing-min-height: 40px;
+    --sds-c-textarea-sizing-max-height: 120px;
+    resize: vertical;
+}
+
+/* Updated loading indicator styles */
+.loading-indicator-container {
+    margin: 8px 0;
+}
+
+.loading-bubble {
+    display: flex;
+    align-items: center;
+    background-color: #e2e2e2;
+    margin: 5px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: #666;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out;
+    opacity: 0.6;
+}
+
+.dot:nth-child(1) { animation-delay: -0.32s; }
+.dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
