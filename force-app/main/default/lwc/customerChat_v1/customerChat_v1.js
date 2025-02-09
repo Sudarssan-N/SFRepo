@@ -1,7 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import generateChatResponse from '@salesforce/apex/CustomerChatGemini.generateChatResponse';
-import saveFeedback from '@salesforce/apex/CustomerChatController.saveFeedback';
+import generateChatResponse from '@salesforce/apex/CustomerChatControllerGemini.generateChatResponse';
+import saveFeedback from '@salesforce/apex/CustomerChatControllerGemini.saveFeedback';
 
 export default class CustomerChat extends LightningElement {
     @api recordId;
