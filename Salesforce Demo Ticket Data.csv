@@ -1,0 +1,41 @@
+Created_Date__c,Customer__c,Status__c,Subject__c,Name
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,Open,Account closure request due to dissatisfaction: Detailed explanation and required actions.,Ticket 1
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,In Progress,Discrepancy in loan repayment records: Detailed explanation and required actions.,Ticket 2
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,Resolved,Inquiry about the latest interest rates for fixed deposits: Detailed explanation and required actions.,Ticket 3
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,Open,Request for increasing credit card limit: Detailed explanation and required actions.,Ticket 4
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,In Progress,Issue with mobile banking app login: Detailed explanation and required actions.,Ticket 5
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,Resolved,Report of unauthorized ATM withdrawal: Detailed explanation and required actions.,Ticket 6
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,Open,Guidance on mortgage refinancing options: Detailed explanation and required actions.,Ticket 7
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,In Progress,Request for detailed transaction history for audit purposes: Detailed explanation and required actions.,Ticket 8
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,Resolved,Delayed processing of a cheque deposit: Detailed explanation and required actions.,Ticket 9
+2025-01-19T12:00:00.000Z,003dM000005H5A5QAK,Open,Application for a new joint account: Detailed explanation and required actions.,Ticket 10
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,Open,Account closure request due to dissatisfaction: Detailed explanation and required actions.,Ticket 11
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,In Progress,Discrepancy in loan repayment records: Detailed explanation and required actions.,Ticket 12
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,Resolved,Inquiry about the latest interest rates for fixed deposits: Detailed explanation and required actions.,Ticket 13
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,Open,Request for increasing credit card limit: Detailed explanation and required actions.,Ticket 14
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,In Progress,Issue with mobile banking app login: Detailed explanation and required actions.,Ticket 15
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,Resolved,Report of unauthorized ATM withdrawal: Detailed explanation and required actions.,Ticket 16
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,Open,Guidance on mortgage refinancing options: Detailed explanation and required actions.,Ticket 17
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,In Progress,Request for detailed transaction history for audit purposes: Detailed explanation and required actions.,Ticket 18
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,Resolved,Delayed processing of a cheque deposit: Detailed explanation and required actions.,Ticket 19
+2025-01-19T12:00:00.000Z,003dM000005H5A6QAK,Open,Application for a new joint account: Detailed explanation and required actions.,Ticket 20
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,Open,Account closure request due to dissatisfaction: Detailed explanation and required actions.,Ticket 21
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,In Progress,Discrepancy in loan repayment records: Detailed explanation and required actions.,Ticket 22
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,Resolved,Inquiry about the latest interest rates for fixed deposits: Detailed explanation and required actions.,Ticket 23
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,Open,Request for increasing credit card limit: Detailed explanation and required actions.,Ticket 24
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,In Progress,Issue with mobile banking app login: Detailed explanation and required actions.,Ticket 25
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,Resolved,Report of unauthorized ATM withdrawal: Detailed explanation and required actions.,Ticket 26
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,Open,Guidance on mortgage refinancing options: Detailed explanation and required actions.,Ticket 27
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,In Progress,Request for detailed transaction history for audit purposes: Detailed explanation and required actions.,Ticket 28
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,Resolved,Delayed processing of a cheque deposit: Detailed explanation and required actions.,Ticket 29
+2025-01-19T12:00:00.000Z,003dM000005H5A7QAK,Open,Application for a new joint account: Detailed explanation and required actions.,Ticket 30
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,Open,Account closure request due to dissatisfaction: Detailed explanation and required actions.,Ticket 31
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,In Progress,Discrepancy in loan repayment records: Detailed explanation and required actions.,Ticket 32
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,Resolved,Inquiry about the latest interest rates for fixed deposits: Detailed explanation and required actions.,Ticket 33
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,Open,Request for increasing credit card limit: Detailed explanation and required actions.,Ticket 34
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,In Progress,Issue with mobile banking app login: Detailed explanation and required actions.,Ticket 35
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,Resolved,Report of unauthorized ATM withdrawal: Detailed explanation and required actions.,Ticket 36
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,Open,Guidance on mortgage refinancing options: Detailed explanation and required actions.,Ticket 37
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,In Progress,Request for detailed transaction history for audit purposes: Detailed explanation and required actions.,Ticket 38
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,Resolved,Delayed processing of a cheque deposit: Detailed explanation and required actions.,Ticket 39
+2025-01-19T12:00:00.000Z,003dM000005H5A8QAK,Open,Application for a new joint account: Detailed explanation and required actions.,Ticket 40
