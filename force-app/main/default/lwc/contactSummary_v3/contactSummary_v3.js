@@ -1,6 +1,6 @@
 import { LightningElement, api } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import generateCustomerSummary from '@salesforce/apex/CustomerSummaryController_v1.generateCustomerSummary';
+import generateCustomerSummary from '@salesforce/apex/CustomerSummaryControllerGemini.generateCustomerSummary';
 import handleAction from '@salesforce/apex/ActionHandler.handleAction';
 
 export default class CustomerSummary extends NavigationMixin(LightningElement) {
