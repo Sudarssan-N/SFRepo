@@ -11,7 +11,7 @@ export default class CustomerChat extends LightningElement {
     @track messages = [];
     @track userInput = '';
     @track isLoading = false;
-    @track selectedModel = 'gpt'; // Default model
+    @track selectedModel = 'gemini'; // Default model
 
     messageCounter = 0;
 

@@ -59,7 +59,7 @@ public with sharing class CustomerChatControllerGemini {
     // Helper method to call the Google Gemini API
     private static String callGoogleGeminiAPI(String prompt) {
         // IMPORTANT: In production, securely retrieve your API key rather than hardcoding it.
-        String apiKey = 'YOUR_GOOGLE_GEMINI_API_KEY'; // Replace with your actual Google Gemini API Key
+        String apiKey = 'AIzaSyDlNwXOIho38m0WimY_xmnG4gGM7qc9Qck'; // Replace with your actual Google Gemini API Key
 
         HttpRequest req = new HttpRequest();
         req.setEndpoint('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'); // Google Gemini Pro Endpoint
