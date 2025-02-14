@@ -1,92 +1,123 @@
 public with sharing class CustomerSummaryControllerGemini {
 
-    // Maximum number of retry attempts
-    private static final Integer MAX_RETRIES = 3;
-    // Wait time between retries in milliseconds (5 seconds)
-    private static final Integer RETRY_WAIT_TIME = 5000;
-    // Maximum total wait time in milliseconds (30 seconds)
-    private static final Integer MAX_TOTAL_WAIT_TIME = 30000;
-
-    // Gemini API Key - Replace with your actual API key (consider using Custom Metadata or Named Credentials for security)
-    private static final String geminiApiKey = 'AIzaSyDlNwXOIho38m0WimY_xmnG4gGM7qc9Qck'; // Replace with your actual API key
-
     @AuraEnabled(cacheable=true)
-    public static String getContactSummary(String customerName) {
+    public static String generateCustomerSummary(Id contactId) {
         try {
-            String customerData = aggregateCustomerData(customerName);
+            // Fetch Contact details
+            Contact contact = [SELECT Name FROM Contact WHERE Id = :contactId];
 
-            // Create the summary prompt
-            String prompt = 'Please provide a brief customer summary of the following interactions in this exact format:\n\n' +
-    'Brief overview of customer situation\n\n' +
-    '1. **Urgent Matters**:\n' +
-    '- list urgent items\n\n' +
-    '2. **Pending Actions**:\n' +
-    '- list pending items\n\n' +
-    '3. **Significant Changes**:\n' +
-    '- list significant changes\n\n' +
-    'Use the following data:\n\n' +
-    customerData;
+            // Fetch related Ticket__c records
+            List<Ticket__c> tickets = [
+                SELECT Subject__c, Status__c, Created_Date__c
+                FROM Ticket__c
+                WHERE Contact__c = :contactId
+            ];
 
+            // Fetch related Email__c records
+            List<Email__c> emails = [
+                SELECT Subject__c, Direction__c, Sent_Date__c
+                FROM Email__c
+                WHERE Contact__c = :contactId
+            ];
 
-            String summary = callGeminiAPIWithRetry(prompt);
-            System.debug(summary);
+            // Fetch related Branch_Visit__c records
+            List<Branch_Visit__c> branchVisits = [
+                SELECT Branch_Name__c, Visit_Reason__c, Visit_Date__c
+                FROM Branch_Visit__c
+                WHERE Contact__c = :contactId
+            ];
 
-            // Ensure we have a valid summary before returning
-            if (String.isBlank(summary)) {
-                summary = 'Unable to generate summary. Please review the raw data.';
+            // Build base prompts
+            String concisePrompt = 'Generate a concise narrative summary (max 200 words) of the customer\'s recent activities and interactions without headings. Highlight key insights and actionable items.\n\n';
+            String fullPrompt = 'Provide a detailed breakdown of the customer\'s interactions, including unresolved tickets, recent emails, and branch visits.\n\n';
+            String conversationStarterPrompt = 'Provide three conversation starters based on the customer data below. The conversation starters should be tailored to the customer\'s data and actionable for the banker and one liner.\n\n';
+
+            // Build a variable to hold customer context data for the actionable recommendations prompt
+            String customerContext = '';
+
+            // Append ticket data to prompts and customerContext
+            for (Ticket__c ticket : tickets) {
+                String ticketInfo = '- Ticket: ' + ticket.Subject__c + ' (' + ticket.Status__c + ', Created On: ' + String.valueOf(ticket.Created_Date__c) + ')\n';
+                concisePrompt += ticketInfo;
+                fullPrompt += ticketInfo;
+                conversationStarterPrompt += ticketInfo;
+                customerContext += ticketInfo;
             }
 
-            // Create and serialize the response
-            Map<String, Object> response = new Map<String, Object>{
-                'summary_text' => summary,
-                'raw_data' => parseCustomerData(customerData)
-            };
+            // Append email data to prompts and customerContext
+            for (Email__c email : emails) {
+                String emailInfo = '- Email: ' + email.Subject__c + ' (Direction: ' + email.Direction__c + ', Sent On: ' + String.valueOf(email.Sent_Date__c) + ')\n';
+                concisePrompt += emailInfo;
+                fullPrompt += emailInfo;
+                conversationStarterPrompt += emailInfo;
+                customerContext += emailInfo;
+            }
 
-            System.debug('Response Map: ' + response);
-            return JSON.serialize(new Map<String, Object>{
-                'summary_text' => summary.replace('\n', '<br>'),
-                'raw_data' => parseCustomerData(customerData)
-            });
+            // Append branch visit data to prompts and customerContext
+            for (Branch_Visit__c visit : branchVisits) {
+                String visitInfo = '- Branch Visit: ' + visit.Branch_Name__c + ' (Reason: ' + visit.Visit_Reason__c + ', Visit Date: ' + String.valueOf(visit.Visit_Date__c) + ')\n';
+                concisePrompt += visitInfo;
+                fullPrompt += visitInfo;
+                conversationStarterPrompt += visitInfo;
+                customerContext += visitInfo;
+            }
+
+            // Add a predictive query at the end of the concise prompt
+            concisePrompt += '\nBased on the above interactions, predict the customer satisfaction score (on a scale of 1 to 10) and include it at the end of the summary.';
+
+            // Build an actionable recommendations prompt that includes the customer context and the allowed actions list
+            String actionablePrompt = 'Based on the following customer interactions:\n' + customerContext +
+                    '\nProvide actionable insights and recommendations on what the customer might need next. ' +
+                    'Return a JSON object with an "actions" key that is an array of objects. Each object should have a "label" (the text for the button) and an "action" (a unique identifier) property. ' +
+                    'The allowed actions are only the following 10: \n' +
+                    '1. scheduleAppointment\n' +
+                    '2. createReferral\n' +
+                    '3. respondToEmail\n' +
+                    '4. loanOptions\n' +
+                    '5. followUpAppointment\n' +
+                    '6. otherReferral\n' +
+                    '7. marketingCampaign\n' +
+                    '8. productInfo\n' +
+                    '9. serviceReview\n' +
+                    '10. accountUpdate\n' +
+                    'Output only the JSON without any additional commentary.';
+
+            // Call Gemini API for each prompt
+            String conciseSummary         = callGeminiAPI(concisePrompt);
+            String fullSummary          = callGeminiAPI(fullPrompt);
+            String conversationStarters   = callGeminiAPI(conversationStarterPrompt);
+            //String actionableRecommendations = callGeminiAPI(actionablePrompt);
+
+            // Format the responses
+            conciseSummary         = formatPlainText(conciseSummary);
+            fullSummary          = formatPlainText(fullSummary);
+            conversationStarters   = formatPlainText(conversationStarters);
+            //actionableRecommendations = formatPlainText(actionableRecommendations);
+
+            // Convert conversation starters into a list (split by newline)
+            List<String> conversationStarterList = conversationStarters.split('\n');
+
+            // Build and return the JSON response
+            Map<String, Object> result = new Map<String, Object>();
+            result.put('conciseSummary', conciseSummary);
+            result.put('fullSummary', fullSummary);
+            result.put('conversationPrompts', conversationStarterList);
+            //result.put('actionableRecommendations', actionableRecommendations);
+
+            return JSON.serialize(result);
 
         } catch (Exception e) {
-            System.debug('Error in getCustomerSummary: ' + e.getMessage() + '\n' + e.getStackTraceString());
-            throw new AuraHandledException('Error processing customer summary: ' + e.getMessage());
+            throw new AuraHandledException('Error generating summary: ' + e.getMessage());
         }
     }
 
-    private static String callGeminiAPIWithRetry(String prompt) {
-        Integer attempts = 0;
-        Long startTime = System.currentTimeMillis();
-
-        while (attempts < MAX_RETRIES) {
-            try {
-                if (System.currentTimeMillis() - startTime > MAX_TOTAL_WAIT_TIME) {
-                    throw new CalloutException('Maximum wait time exceeded');
-                }
-
-                String result = callGeminiAPI(prompt);
-                if (String.isNotBlank(result)) {
-                    return result;
-                }
-            } catch (CalloutException e) {
-                attempts++;
-                if (e.getMessage().contains('rate limit') && attempts < MAX_RETRIES) {
-                    pauseExecution(RETRY_WAIT_TIME);
-                    continue;
-                }
-                throw e;
-            }
-            attempts++;
-        }
-
-        return 'Summary generation failed after ' + MAX_RETRIES + ' attempts. Please try again.';
-    }
-
+    // Helper method to call the Gemini API
     private static String callGeminiAPI(String prompt) {
-        String endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent'; // Gemini 1.5 Pro Endpoint
+        String geminiApiKey = 'AIzaSyDlNwXOIho38m0WimY_xmnG4gGM7qc9Qck'; // Replace with your actual Gemini API key
+        String endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent';
 
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(endpoint + '?key=' + geminiApiKey); // API Key as query parameter
+        req.setEndpoint(endpoint + '?key=' + geminiApiKey);
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
 
@@ -101,30 +132,26 @@ public with sharing class CustomerSummaryControllerGemini {
             }
         };
 
-
         Map<String, Object> requestBody = new Map<String, Object>{
             'contents' => contents
         };
-
-
         req.setBody(JSON.serialize(requestBody));
-        req.setTimeout(10000);
+        req.setTimeout(120000); // Extended timeout for Gemini API
 
         Http http = new Http();
         HttpResponse res = http.send(req);
 
-        System.debug('Gemini API Response Status: ' + res.getStatusCode());
-        System.debug('Gemini API Response Body: ' + res.getBody());
-
-        if (res.getStatusCode() == 200) {
-            Map<String, Object> responseMap = (Map<String, Object>)JSON.deserializeUntyped(res.getBody());
-            return extractGeneratedTextFromGemini(responseMap);
-        } else {
+        if (res.getStatusCode() != 200) {
             throw new CalloutException('Gemini API call failed: ' + res.getBody());
         }
+
+        // Deserialize and parse the response for Gemini API
+        Map<String, Object> result = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+        return extractContentFromGeminiResponse(result);
     }
 
-    private static String extractGeneratedTextFromGemini(Map<String, Object> responseMap) {
+
+    private static String extractContentFromGeminiResponse(Map<String, Object> responseMap) {
         if (responseMap.containsKey('candidates')) {
             List<Object> candidates = (List<Object>)responseMap.get('candidates');
             if (!candidates.isEmpty()) {
@@ -136,200 +163,20 @@ public with sharing class CustomerSummaryControllerGemini {
                         if (!parts.isEmpty()) {
                             Map<String, Object> firstPart = (Map<String, Object>)parts[0];
                             if (firstPart.containsKey('text')) {
-                                String textContent = ((String)firstPart.get('text')).trim();
-                                return cleanUpSummary(textContent);
+                                return (String)firstPart.get('text');
                             }
                         }
                     }
                 }
             }
         }
-        throw new CalloutException('Invalid Gemini response format: ' + JSON.serialize(responseMap));
+        return 'No content found in Gemini response.';
     }
 
 
-    private static String aggregateCustomerData(String customerName) {
-        List<String> ticketDetails = new List<String>();
-        List<String> emailDetails = new List<String>();
-        List<String> visitDetails = new List<String>();
-
-        Contact customer = [
-            SELECT Name, Email, MailingAddress, MobilePhone, Loan_Amount__c, AccountId
-            FROM Contact
-            WHERE Name = :customerName
-            LIMIT 1
-        ];
-
-        // Fetch ticket data
-        List<Ticket__c> tickets = [
-            SELECT Subject__c, Status__c, Created_Date__c
-            FROM Ticket__c
-            WHERE Contact__c = :customer.Id
-        ];
-        for (Ticket__c t : tickets) {
-            ticketDetails.add('Ticket: ' + t.Subject__c + ' (' + t.Status__c + ') on ' + t.Created_Date__c?.format());
-        }
-
-        // Fetch email data
-        List<Email__c> emails = [
-            SELECT Subject__c, Sent_Date__c, Direction__c
-            FROM Email__c
-            WHERE Contact__c = :customer.Id
-        ];
-        for (Email__c e : emails) {
-            emailDetails.add('Email: ' + e.Subject__c + ' (' + e.Direction__c + ') on ' + e.Sent_Date__c?.format());
-        }
-
-        // Fetch branch visit data
-        List<Branch_Visit__c> visits = [
-            SELECT Branch_Name__c, Visit_Reason__c, Visit_Date__c
-            FROM Branch_Visit__c
-            WHERE Contact__c = :customer.Id
-        ];
-        for (Branch_Visit__c v : visits) {
-            visitDetails.add('Branch Visit: ' + v.Branch_Name__c + ' for ' + v.Visit_Reason__c + ' on ' + v.Visit_Date__c?.format());
-        }
-
-        Map<String, Object> data = new Map<String, Object>{
-            'customer_info' => new Map<String, Object>{
-                'name' => customer.Name,
-                'email' => customer.Email,
-                'mailing address' => customer.MailingAddress,
-                'mobile phone' => customer.MobilePhone,
-                'loan amount' => customer.Loan_Amount__c,
-                'account ID' => customer.AccountId
-            },
-            'tickets' => ticketDetails,
-            'emails' => emailDetails,
-            'branch_visits' => visitDetails
-        };
-        return JSON.serialize(data);
-    }
-
-
-
-    @AuraEnabled
-public static String generateFollowUpEmail(String customerName) {
-    try {
-        System.debug('Starting generateFollowUpEmail for customer: ' + customerName);
-
-        // Aggregate the customer data
-        String customerData = aggregateCustomerData(customerName);
-        System.debug('Aggregated customer data: ' + customerData);
-
-        // Create the email generation prompt
-        String prompt = 'Draft a professional follow-up email based on the following customer data:\n\n' +
-                       customerData + '\n\n' +
-                       'Format the email exactly as follows:\n\n' +
-                       'Subject: [Brief, relevant subject line]\n\n' +
-                       'Dear [Name],\n\n' +
-                       '[Email body with:\n' +
-                       '- Reference to recent interactions\n' +
-                       '- Current situation summary\n' +
-                       '- Relevant recommendations\n' +
-                       '- Clear next steps]\n\n' +
-                       'Best regards,\n' +
-                       '[Company Name] Team';
-
-        System.debug('Generated prompt for Gemini: ' + prompt);
-
-        // Call Gemini API with retry mechanism
-        String emailContent = callGeminiAPIWithRetry(prompt);
-        System.debug('Received email content from Gemini: ' + emailContent);
-
-        // Validate email content
-        if (String.isBlank(emailContent)) {
-            System.debug('Error: Generated email content is blank');
-            throw new CalloutException('Email generation failed. Please try again.');
-        }
-
-        // Clean up and format the email content
-        String cleanedContent = cleanupEmailContent(emailContent);
-        System.debug('Cleaned email content: ' + cleanedContent);
-
-        // Create response map
-        Map<String, Object> response = new Map<String, Object>{
-            'email_content' => cleanedContent,
-            'raw_data' => parseCustomerData(customerData)
-        };
-
-        System.debug('Final response map: ' + response);
-        String serializedResponse = JSON.serialize(response);
-        System.debug('Serialized response: ' + serializedResponse);
-
-        return serializedResponse;
-
-    } catch (Exception e) {
-        String errorMsg = 'Error in generateFollowUpEmail: ' + e.getMessage() + '\n' + e.getStackTraceString();
-        System.debug(LoggingLevel.ERROR, errorMsg);
-        throw new AuraHandledException('Error generating follow-up email: ' + e.getMessage());
-    }
-}
-
-private static String cleanupEmailContent(String content) {
-    System.debug('Starting email content cleanup. Original content: ' + content);
-
-    try {
-        // First, standardize line breaks
-        content = content.replaceAll('\r\n', '\n')
-                        .replaceAll('\r', '\n');
-
-        // Remove any extra blank lines
-        content = content.replaceAll('(?m)^[ \t]*\r?\n', '');
-
-        // Replace markdown formatting if present
-        content = content.replaceAll('\\*\\*', '')
-                        .replaceAll('__', '');
-
-        // Ensure proper spacing around sections
-        content = content.replaceAll('(?m)^Subject:', '\nSubject:')
-                        .replaceAll('(?m)^Dear', '\nDear')
-                        .replaceAll('(?m)^Best regards,', '\nBest regards,');
-
-        // Convert line breaks for HTML display
-        String finalContent = content.replace('\n', '<br>');
-
-        System.debug('Completed email content cleanup. Final content: ' + finalContent);
-        return finalContent;
-
-    } catch (Exception e) {
-        System.debug(LoggingLevel.ERROR, 'Error in cleanupEmailContent: ' + e.getMessage() + '\n' + e.getStackTraceString());
-        throw e;
-    }
-}
-
-
-    private static String cleanUpSummary(String content) {
-    // First, let's standardize the line breaks
-    content = content.replaceAll('\r\n', '\n')
-                    .replaceAll('\r', '\n');
-
-    // Replace markdown headers with our custom format
-    content = content.replaceAll('###', '')
-                    .replaceAll('\\*\\*', '');  // Remove all ** markers
-
-    // Add our own section markers
-    content = content.replaceAll('(?m)^1\\. Urgent Matters:', '1. **Urgent Matters**:')
-                    .replaceAll('(?m)^2\\. Pending Actions:', '2. **Pending Actions**:')
-                    .replaceAll('(?m)^3\\. Significant Changes:', '3. **Significant Changes**:');
-
-    return content;
-}
-
-
-    private static void pauseExecution(Integer milliseconds) {
-        Long waitTimeStart = System.currentTimeMillis();
-        while (System.currentTimeMillis() - waitTimeStart < milliseconds) {
-            // Busy wait loop
-        }
-    }
-
-    private static Map<String, Object> parseCustomerData(String customerData) {
-        try {
-            return (Map<String, Object>)JSON.deserializeUntyped(customerData);
-        } catch (Exception e) {
-            System.debug('Error parsing customer data: ' + e.getMessage());
-            return new Map<String, Object>{'error' => 'Invalid data format'};
-        }
+    // Helper method for formatting the plain text output
+    private static String formatPlainText(String input) {
+        // Remove formatting artifacts and trim spaces
+        return input.replaceAll('\\*\\*', '').trim();
     }
 }

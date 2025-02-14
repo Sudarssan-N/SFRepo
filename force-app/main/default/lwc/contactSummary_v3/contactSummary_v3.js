@@ -42,18 +42,7 @@ export default class CustomerSummary extends NavigationMixin(LightningElement) {
                 this.detailedSummary = parsedResult.fullSummary;
                 this.conversationStarters = parsedResult.conversationPrompts;
 
-                // Try to extract valid JSON from the actionableRecommendations string
-                try {
-                    const jsonPart = this.extractJson(parsedResult.actionableRecommendations);
-                    if (jsonPart) {
-                        const actionObj = JSON.parse(jsonPart);
-                        if (actionObj.actions && Array.isArray(actionObj.actions)) {
-                            this.actionableActions = actionObj.actions;
-                        }
-                    }
-                } catch (e) {
-                    this.error = 'Error parsing actionable recommendations: ' + e.message;
-                }
+                
             })
             .catch((error) => {
                 this.error = 'Error generating summary: ' + (error.body ? error.body.message : error);
