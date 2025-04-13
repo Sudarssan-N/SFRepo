@@ -1,8 +1,0 @@
-/* customerBankerTabs.css */
-:host {
-    display: block;
-}
-
-lightning-tabset {
-    min-height: 700px;
-}
