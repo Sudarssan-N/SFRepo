@@ -12,6 +12,8 @@ export default class CustomerSummary extends NavigationMixin(LightningElement) {
     actionableActions = []; // Will store the parsed actions array
     error = '';
     showDetails = false;
+    satisfactionScore = '';
+    expectedSentiment = '';
 
     get toggleLabel() {
         return this.showDetails ? 'Hide Detailed Summary' : 'Show Detailed Summary';
@@ -34,15 +36,23 @@ export default class CustomerSummary extends NavigationMixin(LightningElement) {
         this.detailedSummary = '';
         this.conversationStarters = [];
         this.actionableActions = [];
+        this.satisfactionScore = '';
+        this.expectedSentiment = '';
 
         generateCustomerSummary({ contactId: this.recordId })
             .then((result) => {
                 const parsedResult = JSON.parse(result);
-                this.summary = parsedResult.conciseSummary;
+                
+                // Extract satisfaction score from conciseSummary
+                const conciseSummary = parsedResult.conciseSummary;
+                const scoreMatch = conciseSummary.match(/Customer satisfaction score: (\d{1,2})\/10/);
+                this.satisfactionScore = scoreMatch ? scoreMatch[1] : 'N/A';
+                
+                // Remove the satisfaction score from the summary to avoid duplication
+                this.summary = conciseSummary.replace(/Customer satisfaction score: \d{1,2}\/10\.?/, '').trim();
                 this.detailedSummary = parsedResult.fullSummary;
                 this.conversationStarters = parsedResult.conversationPrompts;
-
-                
+                this.expectedSentiment = parsedResult.expectedSentiment || 'Not available';
             })
             .catch((error) => {
                 this.error = 'Error generating summary: ' + (error.body ? error.body.message : error);

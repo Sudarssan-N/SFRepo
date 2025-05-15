@@ -30,9 +30,10 @@ public with sharing class CustomerSummaryControllerGemini {
             // Build base prompts
             String concisePrompt = 'Generate a concise narrative summary (max 200 words) of the customer\'s recent activities and interactions without headings. Highlight key insights and actionable items.\n\n';
             String fullPrompt = 'Provide a detailed breakdown of the customer\'s interactions, including unresolved tickets, recent emails, and branch visits.\n\n';
-            String conversationStarterPrompt = 'Provide three conversation starters based on the customer data below. The conversation starters should be tailored to the customer\'s data and actionable for the banker and one liner.\n\n';
+            String conversationStarterPrompt = 'Provide three conversation starters based on the customer data below. The conversation starters should be tailored to the customer\'s data and actionable for the banker and one liner. Only 3 points and each points needs to be only one liner or two liner\n\n';
+            String sentimentPrompt = 'Based on the customer data below, predict the customer\'s expected sentiment (e.g., Positive, Neutral, Negative, or a short descriptive phrase). Provide a brief explanation (1-2 sentences) for the prediction. This needs to be on whole context of customer and need to be under 50 words\n\n';
 
-            // Build a variable to hold customer context data for the actionable recommendations prompt
+            // Build a variable to hold customer context data
             String customerContext = '';
 
             // Append ticket data to prompts and customerContext
@@ -41,6 +42,7 @@ public with sharing class CustomerSummaryControllerGemini {
                 concisePrompt += ticketInfo;
                 fullPrompt += ticketInfo;
                 conversationStarterPrompt += ticketInfo;
+                sentimentPrompt += ticketInfo;
                 customerContext += ticketInfo;
             }
 
@@ -50,6 +52,7 @@ public with sharing class CustomerSummaryControllerGemini {
                 concisePrompt += emailInfo;
                 fullPrompt += emailInfo;
                 conversationStarterPrompt += emailInfo;
+                sentimentPrompt += emailInfo;
                 customerContext += emailInfo;
             }
 
@@ -59,40 +62,24 @@ public with sharing class CustomerSummaryControllerGemini {
                 concisePrompt += visitInfo;
                 fullPrompt += visitInfo;
                 conversationStarterPrompt += visitInfo;
+                sentimentPrompt += visitInfo;
                 customerContext += visitInfo;
             }
 
             // Add a predictive query at the end of the concise prompt
-            concisePrompt += '\nBased on the above interactions, predict the customer satisfaction score (on a scale of 1 to 10) and include it at the end of the summary.';
-
-            // Build an actionable recommendations prompt that includes the customer context and the allowed actions list
-            String actionablePrompt = 'Based on the following customer interactions:\n' + customerContext +
-                    '\nProvide actionable insights and recommendations on what the customer might need next. ' +
-                    'Return a JSON object with an "actions" key that is an array of objects. Each object should have a "label" (the text for the button) and an "action" (a unique identifier) property. ' +
-                    'The allowed actions are only the following 10: \n' +
-                    '1. scheduleAppointment\n' +
-                    '2. createReferral\n' +
-                    '3. respondToEmail\n' +
-                    '4. loanOptions\n' +
-                    '5. followUpAppointment\n' +
-                    '6. otherReferral\n' +
-                    '7. marketingCampaign\n' +
-                    '8. productInfo\n' +
-                    '9. serviceReview\n' +
-                    '10. accountUpdate\n' +
-                    'Output only the JSON without any additional commentary.';
+            concisePrompt += '\nBased on the above interactions, predict the customer satisfaction score (on a scale of 1 to 10) and include it at the end of the summary.The satisfaction score is assumed to be in the format "Customer satisfaction score: X/10"';
 
             // Call Gemini API for each prompt
-            String conciseSummary         = callGeminiAPI(concisePrompt);
-            String fullSummary          = callGeminiAPI(fullPrompt);
-            String conversationStarters   = callGeminiAPI(conversationStarterPrompt);
-            //String actionableRecommendations = callGeminiAPI(actionablePrompt);
+            String conciseSummary = callGeminiAPI(concisePrompt);
+            String fullSummary = callGeminiAPI(fullPrompt);
+            String conversationStarters = callGeminiAPI(conversationStarterPrompt);
+            String expectedSentiment = callGeminiAPI(sentimentPrompt);
 
             // Format the responses
-            conciseSummary         = formatPlainText(conciseSummary);
-            fullSummary          = formatPlainText(fullSummary);
-            conversationStarters   = formatPlainText(conversationStarters);
-            //actionableRecommendations = formatPlainText(actionableRecommendations);
+            conciseSummary = formatPlainText(conciseSummary);
+            fullSummary = formatPlainText(fullSummary);
+            conversationStarters = formatPlainText(conversationStarters);
+            expectedSentiment = formatPlainText(expectedSentiment);
 
             // Convert conversation starters into a list (split by newline)
             List<String> conversationStarterList = conversationStarters.split('\n');
@@ -102,7 +89,7 @@ public with sharing class CustomerSummaryControllerGemini {
             result.put('conciseSummary', conciseSummary);
             result.put('fullSummary', fullSummary);
             result.put('conversationPrompts', conversationStarterList);
-            //result.put('actionableRecommendations', actionableRecommendations);
+            result.put('expectedSentiment', expectedSentiment);
 
             return JSON.serialize(result);
 
@@ -113,8 +100,8 @@ public with sharing class CustomerSummaryControllerGemini {
 
     // Helper method to call the Gemini API
     private static String callGeminiAPI(String prompt) {
-        String geminiApiKey = 'AIzaSyDlNwXOIho38m0WimY_xmnG4gGM7qc9Qck'; // Replace with your actual Gemini API key
-        String endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent';
+        String geminiApiKey = 'AIzaSyBBX-AoymRmOD9Ek8FXLndQ_DEfGupw5Ig'; // Replace with your actual Gemini API key
+        String endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + '?key=' + geminiApiKey);
@@ -150,7 +137,6 @@ public with sharing class CustomerSummaryControllerGemini {
         return extractContentFromGeminiResponse(result);
     }
 
-
     private static String extractContentFromGeminiResponse(Map<String, Object> responseMap) {
         if (responseMap.containsKey('candidates')) {
             List<Object> candidates = (List<Object>)responseMap.get('candidates');
@@ -172,7 +158,6 @@ public with sharing class CustomerSummaryControllerGemini {
         }
         return 'No content found in Gemini response.';
     }
-
 
     // Helper method for formatting the plain text output
     private static String formatPlainText(String input) {
