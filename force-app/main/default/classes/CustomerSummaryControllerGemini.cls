@@ -66,8 +66,8 @@ public with sharing class CustomerSummaryControllerGemini {
                 customerContext += visitInfo;
             }
 
-            // Add a predictive query at the end of the concise prompt
-            concisePrompt += '\nBased on the above interactions, predict the customer satisfaction score (on a scale of 1 to 10) and include it at the end of the summary.The satisfaction score is assumed to be in the format "Customer satisfaction score: X/10"';
+            // Add predictive queries for satisfaction score and explanation
+            concisePrompt += '\nBased on the above interactions, predict the customer satisfaction score (on a scale of 1 to 10) in the format "Customer satisfaction score: X/10". Then, provide a brief explanation (1-2 sentences, under 50 words) for the score in the format "Explanation: [explanation text]".';
 
             // Call Gemini API for each prompt
             String conciseSummary = callGeminiAPI(concisePrompt);
@@ -81,6 +81,24 @@ public with sharing class CustomerSummaryControllerGemini {
             conversationStarters = formatPlainText(conversationStarters);
             expectedSentiment = formatPlainText(expectedSentiment);
 
+            // Extract satisfaction score and explanation from conciseSummary
+            String satisfactionScore = '';
+            String satisfactionExplanation = '';
+            Pattern scorePattern = Pattern.compile('Customer satisfaction score: (\\d{1,2})/10');
+            Pattern explanationPattern = Pattern.compile('Explanation: (.+?)(?=($|\\n\\n))');
+            Matcher scoreMatcher = scorePattern.matcher(conciseSummary);
+            Matcher explanationMatcher = explanationPattern.matcher(conciseSummary);
+
+            if (scoreMatcher.find()) {
+                satisfactionScore = scoreMatcher.group(1);
+            }
+            if (explanationMatcher.find()) {
+                satisfactionExplanation = explanationMatcher.group(1);
+            }
+
+            // Remove the satisfaction score and explanation from the summary to avoid duplication
+            conciseSummary = conciseSummary.replaceAll('Customer satisfaction score: \\d{1,2}/10', '').replaceAll('Explanation: .+?(?=($|\\n\\n))', '').trim();
+
             // Convert conversation starters into a list (split by newline)
             List<String> conversationStarterList = conversationStarters.split('\n');
 
@@ -90,6 +108,8 @@ public with sharing class CustomerSummaryControllerGemini {
             result.put('fullSummary', fullSummary);
             result.put('conversationPrompts', conversationStarterList);
             result.put('expectedSentiment', expectedSentiment);
+            result.put('satisfactionScore', satisfactionScore);
+            result.put('satisfactionExplanation', satisfactionExplanation);
 
             return JSON.serialize(result);
 

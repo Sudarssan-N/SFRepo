@@ -14,39 +14,54 @@
 
             <template if:true={summary}>
                 <div class="insights-container slds-box slds-theme_default slds-p-around_medium">
-                    <h2 class="slds-text-heading_medium slds-m-bottom_medium">Summary</h2>
-                    <p class="slds-text-body_small">{summary}</p>
-
-                    <h2 class="slds-text-heading_medium slds-m-top_large slds-m-bottom_medium">Conversation Starters</h2>
-                    <div class="slds-box slds-theme_shade slds-p-around_medium">
-                        <ul class="slds-list_vertical">
-                            <template for:each={conversationStarters} for:item="starter">
-                                <li key={starter} class="slds-text-body_small slds-m-bottom_small">{starter}</li>
-                            </template>
-                        </ul>
-                    </div>
-
-                    <h2 class="slds-text-heading_medium slds-m-top_large slds-m-bottom_medium">Sentiment Expected for the Customer</h2>
-                    <div class="slds-box slds-theme_shade slds-p-around_medium">
-                        <p class="slds-text-body_small">Customer Satisfaction Score: {satisfactionScore}/10</p>
-                        <p class="slds-text-body_small">Expected Sentiment: {expectedSentiment}</p>
-                    </div>
-
-                    <!-- Improved Dynamic Action Buttons Section
-                    <h2 class="slds-text-heading_medium slds-m-top_large slds-m-bottom_medium">Recommended Actions</h2>
-                    <div class="slds-grid slds-wrap button-container">
-                        <template for:each={actionableActions} for:item="action">
-                            <div key={action.action} class="slds-col slds-size_1-of-3 slds-p-around_small">
-                                <lightning-button 
-                                    label={action.label}
-                                    data-action={action.action}
-                                    onclick={handleActionClick}
-                                    class="action-button">
-                                </lightning-button>
+                    <!-- Top section with 3 rows: Summary, Sentiment, CSAT -->
+                    <div class="slds-grid slds-gutters">
+                        <!-- Summary Row -->
+                        <div class="slds-col slds-size_1-of-1">
+                            <h2 class="slds-text-heading_medium slds-m-bottom_medium">Summary</h2>
+                            <div class="slds-box slds-theme_shade slds-p-around_medium">
+                                <p class="slds-text-body_small">{summary}</p>
                             </div>
-                        </template>
-                    </div> -->
+                        </div>
+                        
+                        <!-- Sentiment Analysis Row -->
+                        <div class="slds-col slds-size_1-of-1">
+                            <h2 class="slds-text-heading_medium slds-m-bottom_medium">Sentiment Analysis</h2>
+                            <div class="slds-box slds-theme_shade slds-p-around_medium">
+                                <p class="slds-text-body_small">
+                                    <span class="subtopic">Perceived Sentiment</span>: 
+                                    <span class={sentimentColorClass}>{sentimentLabel}</span>
+                                </p>
+                                <p class="slds-text-body_small sentiment-explanation">{sentimentExplanation}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- CSAT Score Row -->
+                        <div class="slds-col slds-size_1-of-1">
+                            <h2 class="slds-text-heading_medium slds-m-bottom_medium">Customer Satisfaction</h2>
+                            <div class="slds-box slds-theme_shade slds-p-around_medium">
+                                <p class="slds-text-body_small">
+                                    <span class="subtopic">CSAT Score</span>: 
+                                    <span class={scoreColorClass}>{satisfactionScore}/10</span>
+                                </p>
+                                <p class="slds-text-body_small">{satisfactionExplanation}</p>
+                            </div>
+                        </div>
+                    </div>
 
+                    <!-- Conversation Starters Section (Full Width) -->
+                    <div class="slds-m-top_large">
+                        <h2 class="slds-text-heading_medium slds-m-bottom_medium">Conversation Starters</h2>
+                        <div class="slds-box slds-theme_shade slds-p-around_medium">
+                            <ul class="slds-list_vertical">
+                                <template for:each={conversationStarters} for:item="starter">
+                                    <li key={starter} class="slds动态-body_small slds-m-bottom_small">{starter}</li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Toggle for detailed summary -->
                     <lightning-button 
                         label={toggleLabel} 
                         variant="neutral" 
@@ -54,7 +69,7 @@
                         class="slds-m-top_medium">
                     </lightning-button>
                     <template if:true={showDetails}>
-                        <div class="detailed-summary slds-box slds-theme_default slds-p-around_medium">
+                        <div class="detailed-summary slds-box slds-theme_default slds-p-around_medium slds-m-top_small">
                             <pre class="slds-text-body_small">{detailedSummary}</pre>
                         </div>
                     </template>

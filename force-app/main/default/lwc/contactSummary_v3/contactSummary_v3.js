@@ -13,7 +13,11 @@ export default class CustomerSummary extends NavigationMixin(LightningElement) {
     error = '';
     showDetails = false;
     satisfactionScore = '';
-    expectedSentiment = '';
+    satisfactionExplanation = '';
+    sentimentLabel = ''; // To store the sentiment label (e.g., "Mixed")
+    sentimentExplanation = ''; // To store the sentiment explanation
+    scoreColorClass = '';
+    sentimentColorClass = '';
 
     get toggleLabel() {
         return this.showDetails ? 'Hide Detailed Summary' : 'Show Detailed Summary';
@@ -29,6 +33,26 @@ export default class CustomerSummary extends NavigationMixin(LightningElement) {
         return null;
     }
 
+    // Determine color class for satisfaction score
+    getScoreColorClass(score) {
+        const scoreNum = parseInt(score, 10);
+        if (isNaN(scoreNum)) return '';
+        if (scoreNum >= 1 && scoreNum <= 4) return 'score-red';
+        if (scoreNum >= 5 && scoreNum <= 7) return 'score-yellow';
+        if (scoreNum >= 8 && scoreNum <= 10) return 'score-green';
+        return '';
+    }
+
+    // Determine color class for sentiment (apply to label only)
+    getSentimentColorClass(sentiment) {
+        if (!sentiment) return '';
+        const lowerSentiment = sentiment.toLowerCase();
+        if (lowerSentiment.includes('positive')) return 'sentiment-positive';
+        if (lowerSentiment.includes('neutral')) return 'sentiment-neutral';
+        if (lowerSentiment.includes('negative')) return 'sentiment-negative';
+        return 'sentiment-neutral'; // Default to neutral for descriptive phrases
+    }
+
     handleGenerateSummary() {
         this.isLoading = true;
         this.error = '';
@@ -37,22 +61,44 @@ export default class CustomerSummary extends NavigationMixin(LightningElement) {
         this.conversationStarters = [];
         this.actionableActions = [];
         this.satisfactionScore = '';
-        this.expectedSentiment = '';
+        this.satisfactionExplanation = '';
+        this.sentimentLabel = '';
+        this.sentimentExplanation = '';
+        this.scoreColorClass = '';
+        this.sentimentColorClass = '';
 
         generateCustomerSummary({ contactId: this.recordId })
             .then((result) => {
                 const parsedResult = JSON.parse(result);
                 
-                // Extract satisfaction score from conciseSummary
-                const conciseSummary = parsedResult.conciseSummary;
-                const scoreMatch = conciseSummary.match(/Customer satisfaction score: (\d{1,2})\/10/);
-                this.satisfactionScore = scoreMatch ? scoreMatch[1] : 'N/A';
-                
-                // Remove the satisfaction score from the summary to avoid duplication
-                this.summary = conciseSummary.replace(/Customer satisfaction score: \d{1,2}\/10\.?/, '').trim();
-                this.detailedSummary = parsedResult.fullSummary;
-                this.conversationStarters = parsedResult.conversationPrompts;
-                this.expectedSentiment = parsedResult.expectedSentiment || 'Not available';
+                this.summary = parsedResult.conciseSummary || '';
+                this.detailedSummary = parsedResult.fullSummary || '';
+                this.conversationStarters = parsedResult.conversationPrompts || [];
+                this.satisfactionScore = parsedResult.satisfactionScore || 'N/A';
+                this.satisfactionExplanation = parsedResult.satisfactionExplanation || 'Not available';
+
+                // Split expectedSentiment into label and explanation
+                const expectedSentiment = parsedResult.expectedSentiment || 'Not available';
+                const sentimentParts = expectedSentiment.split('. ');
+                if (sentimentParts.length > 1) {
+                    this.sentimentLabel = sentimentParts[0].replace('Perceived Sentiment:', '').trim();
+                    this.sentimentExplanation = sentimentParts.slice(1).join('. ').trim();
+                } else {
+                    this.sentimentLabel = expectedSentiment.replace('Perceived Sentiment:', '').trim();
+                    this.sentimentExplanation = 'No explanation available.';
+                }
+
+                // Apply color classes
+                this.scoreColorClass = this.getScoreColorClass(this.satisfactionScore);
+                this.sentimentColorClass = this.getSentimentColorClass(this.sentimentLabel);
+
+                // // Clean up the conversation starters array - remove any empty entries or numbering
+                // this.conversationStarters = this.conversationStarters
+                //     .filter(starter => starter && starter.trim() !== '')
+                //     .map(starter => {
+                //         // Remove any leading numbers like "1. ", "2. ", etc.
+                //         return starter.replace(/^\d+\.\s+/, '').trim();
+                //     });
             })
             .catch((error) => {
                 this.error = 'Error generating summary: ' + (error.body ? error.body.message : error);

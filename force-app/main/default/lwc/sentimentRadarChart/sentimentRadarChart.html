@@ -1,0 +1,17 @@
+<template>
+    <lightning-card title="Customer Sentiment Trend" icon-name="standard:branch_visit">
+        <div class="slds-p-around_medium">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </template>
+            <template if:true={error}>
+                <div class="slds-text-color_error slds-p-bottom_small">{error}</div>
+            </template>
+            <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+                <template if:false={isLoading}>
+                    <canvas lwc:dom="manual" class="chart-canvas"></canvas>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+</template>

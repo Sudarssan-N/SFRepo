@@ -9,3 +9,66 @@
 .action-button {
     width: 100%;
 }
+
+/* Bold subtopics with larger font size */
+.subtopic {
+    font-weight: bold;
+    font-size: 0.9rem; /* Slightly larger than slds-text-body_small */
+}
+
+/* Style for sentiment explanation */
+
+
+/* Color classes for satisfaction score */
+.score-red {
+    color: #c23934; /* SLDS error red */
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.score-yellow {
+    color: #ffb107; /* SLDS warning yellow */
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.score-green {
+    color: #4bca81; /* SLDS success green */
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+/* Color classes for sentiment */
+.sentiment-positive {
+    color: #4bca81; /* SLDS success green */
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.sentiment-neutral {
+    color: #ffb107; /* SLDS warning yellow */
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.sentiment-negative {
+    color: #c23934; /* SLDS error red */
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+/* Equal height boxes for the top sections */
+.insights-container .slds-box {
+    height: auto; /* Allow boxes to adjust height based on content */
+}
+
+/* Ensure grid columns stack vertically */
+.slds-grid {
+    display: block; /* Stack the columns vertically */
+}
+
+/* Ensure each column takes full width */
+.slds-col {
+    width: 100%; /* Full width for each section */
+    margin-bottom: 1rem; /* Add spacing between sections */
+}
