@@ -1,5 +1,6 @@
 import { LightningElement, track, wire } from 'lwc';
 import { loadScript } from 'lightning/platformResourceLoader';
+import ChartJS from '@salesforce/resourceUrl/ChartJs'; // Import the static resource
 import getSentimentData from '@salesforce/apex/SentimentController.getSentimentData';
 
 export default class SentimentRadarChart extends LightningElement {
@@ -23,7 +24,7 @@ export default class SentimentRadarChart extends LightningElement {
         }
         this.isChartJsInitialized = true;
         Promise.all([
-            loadScript(this, 'https://cdn.jsdelivr.net/npm/chart.js')
+            loadScript(this, ChartJS) // Load Chart.js from the static resource
         ])
             .then(() => {
                 console.log('Chart.js loaded successfully');
@@ -61,21 +62,21 @@ export default class SentimentRadarChart extends LightningElement {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Positive Sentiment',
+                        label: 'Positive',
                         data: positiveData,
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1
                     },
                     {
-                        label: 'Negative Sentiment',
+                        label: 'Negative',
                         data: negativeData,
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1
                     },
                     {
-                        label: 'Mixed Sentiment',
+                        label: 'Mixed',
                         data: mixedData,
                         backgroundColor: 'rgba(255, 206, 86, 0.2)',
                         borderColor: 'rgba(255, 206, 86, 1)',
